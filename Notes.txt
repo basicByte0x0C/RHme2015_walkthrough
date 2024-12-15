@@ -86,7 +86,7 @@ Read the response, should be different than "E"(invalid response, probably comes
 	Its because of the serial.readline() method, i avoided it by using read() and some additional checks.
 	Now it computes 5 tries per second 
 		=> Max time = 209715 s == 3495 minutes == 58 hours == 2.5 days
-Note: Already Bruteforced : 0x00 -> 0x4DAD4
+Note: Already Bruteforced : 0x00 -> 0x53A35
 
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
