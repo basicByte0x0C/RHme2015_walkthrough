@@ -10,10 +10,17 @@ requestNonce = "A" + crlf   # Request Nonce
 requestVar = "V" + crlf     # Request Variables
 requestHelp = "H" + crlf    # Request Help
 
+# Convert int to hex value for argument parser
+def hex_type(value): 
+    try: 
+        return int(value, 16) 
+    except ValueError: 
+        raise argparse.ArgumentTypeError(f"Invalid hexadecimal value: '{value}'")
+
 # Arguments parse to customize bruteforce
 parser = argparse.ArgumentParser(description="Tool for RHme 2015 hacking challenge.")
-parser.add_argument('-com', type=str, help="Specify the Serial Port to be used.")
-parser.add_argument('-baud', type=int, help="Specify the baudrate for the serial communication.")
+parser.add_argument('-com', type=str, help="Specify the Serial Port to be used. Default: COM3")
+parser.add_argument('-baud', type=int, help="Specify the baudrate for the serial communication. Default: 1000000")
 
 # Get Arguments
 args = parser.parse_args()
@@ -41,12 +48,12 @@ serialPort = serial.Serial(
 def Serial_Flush():
     # Flush Serial data
     print("")
-    print("----- Start Initial Flushing -----")
+    print("----- Start Flushing -----")
     print("")
     while True:
         flush = serialPort.readline()
         if flush.decode() == crlf:
-            print("----- Flush successfull -----")
+            print("----- Flush successful -----")
             break
         else:
             print(flush.decode())

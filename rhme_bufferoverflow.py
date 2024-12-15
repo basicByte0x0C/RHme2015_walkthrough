@@ -12,7 +12,7 @@ print("-------------------- RHme 2015 Overflower --------------------")
 print("")
 
 # Add additional argument
-parser.add_argument('-limit', type=int, help="Specify the number of characters used for input.")
+parser.add_argument('-limit', type=int, help="Specify the number of characters used for input. Default: 500")
 args = parser.parse_args()
 
 # Set Overflow limit
@@ -23,6 +23,9 @@ else:
 
 # Define Main
 def main():
+    # Prepare Serial
+    Serial_Flush()
+
     # Write a lot of characters
     input = "A"
     for iterator in range(0, limitValue):

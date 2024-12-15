@@ -6,29 +6,32 @@ import serial, argparse
 crlf = '\r\n'
 
 # Request Nonce command
-requestCommand = "A" + crlf
-#print("DEBUG: Used requestCommand = " + requestCommand) # Debug to see the actual command being sent
+requestNonce = "A" + crlf   # Request Nonce
 
+# Convert int to hex value for argument parser
 def hex_type(value): 
     try: 
         return int(value, 16) 
     except ValueError: 
         raise argparse.ArgumentTypeError(f"Invalid hexadecimal value: '{value}'")
 
-# Script Mainfunction
-def main() :
-    # Info and Style
-    print("")
-    print("-------------------- RHme 2015 Bruteforcer --------------------")
-    print("")
+#---------------------------------------
+#   Implementation
+#---------------------------------------
 
+# Info and Style
+print("")
+print("-------------------- RHme 2015 Bruteforcer --------------------")
+print("")
+
+# Define Main
+def main():
     # Arguments parse to customize bruteforce
     parser = argparse.ArgumentParser(description="Bruteforcer for RHme 2015 hacking challenge.")
     parser.add_argument('-com', type=str, help="Specify the Serial Port to be used.")
     parser.add_argument('-baud', type=int, help="Specify the baudrate for the serial communication.")
     parser.add_argument('-begin', type=hex_type, help="Specify the starting value of the brutforce.")
     parser.add_argument('-end', type=hex_type, help="Specify the ending value of the brutforce.")
-    #parser.add_argument('-user', type=hex, required=false, help="Specify the user preset for bruteforce.")
 
     # Get Arguments
     args = parser.parse_args()
@@ -68,12 +71,12 @@ def main() :
     
     # Flush Serial data
     print("")
-    print("----- Start Initial Flushing -----")
+    print("----- Start Flushing -----")
     print("")
     while True:
         flush = serialPort.readline()
         if flush.decode() == '\r\n':
-            print("----- Flush successfull -----")
+            print("----- Flush successful -----")
             break
         else:
             print(flush.decode())
@@ -83,7 +86,7 @@ def main() :
     # Bruteforce the User Password
     for rspNumber in range(startingPoint, endingPoint):
         # Request Nonce
-        serialPort.write(requestCommand.encode())
+        serialPort.write(requestNonce.encode())
         temp = serialPort.readline() # Needed to flush the response
 
         # Read Response; Assume Nonce is the same everytime, because the RNG pin is shorted to GND
@@ -92,7 +95,7 @@ def main() :
         temp = serialPort.readline() # Needed to flush the response
 
         # Respond with bruteforced number
-        responseCommand = 'R' + f'{rspNumber:08x}' + crlf # Normal User respond with R000xxxxx
+        responseCommand = 'R' + f'{rspNumber:08x}' + crlf # Response in format Rxxxxxxxx
         serialPort.write(responseCommand.encode())
         print("DEBUG: Bruteforced command = " + responseCommand) # Debug to see if the response command is correct
 
@@ -102,6 +105,7 @@ def main() :
             if temp.decode() not in ['','\r', '\n']:
                 break
         print("DEBUG: Bruteforce result = " + temp.decode()) # Debug to see the actual response being received
+        
         # Check if number was correct
         if temp.decode() != 'E':
             # Number was correct, print it
@@ -114,6 +118,6 @@ def main() :
             print(hex(rspNumber))
             break
 
-# Mainfunction start
+# Run Main
 if __name__ == '__main__':
     main()
