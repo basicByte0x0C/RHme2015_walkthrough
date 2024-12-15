@@ -1,6 +1,8 @@
-# RH-me2015_walkthrough
+# RHme-2015 Walkthrough
 Personal walkthtough of the 2015 RHme Challenge
 
 Device used: Arduino Uno(from Plusivo)
 
-!! Will contain spoilers !!
+Original Challenge: https://github.com/Keysight/RHme-2015
+
+# !! Will contain spoilers !!
