@@ -54,8 +54,8 @@ No TRNG Support => Entropy must be from some Pin
 6. Try command "A" with all pins shorted to GND one by one => Pin A1 is used for RNG => same Nonce with A1 shorted to GND
 Constant Nonce == 0xe7212f7d
 
-7. Now What? Bruteforce? Voltage Glitch Attack? Command Fuzzing(maybe there are hidden commands)? Buffer Overflow
-Response is Rxxxxxx.
+7. Now What? Bruteforce? Voltage Glitch Attack? Command Fuzzing(maybe there are hidden commands)? Buffer Overflow?
+Response is Rxxxxxxxx.
 From GitHub we know that each user has unique masked response based on AES, the SW computes all of them and verify the response.
 Type of Users: User, Privileged, Admin
 All have one 128bit Key
@@ -66,7 +66,7 @@ User Masks: Muser = 0x000FFFFF; Mpriv = 0x00FFFFFF; Madmin = 0xFFFFFFFF;
 Example:
 User Key = F0E0D0C0B0A090807060504030201000
 Nonce = 0x0AEEB964 => P = 0AEEB964000000000000000000000000
-C = AES(P, User Key) => R = C & Muser = 0x00033695
+C = AES(P, User Key) => R = C & Muser = 0x00033695 == R00033695
 ---
 !! => Key and AES algorithm is irrelevant, because the response is limited to 4 bytes anyway !!
 For User we must bruteforce value 0xFFFFF(== 1048575 DEC) => ~1 million tries
@@ -86,14 +86,18 @@ Read the response, should be different than "E"(invalid response, probably comes
 	Its because of the serial.readline() method, i avoided it by using read() and some additional checks.
 	Now it computes 5 tries per second 
 		=> Max time = 209715 s == 3495 minutes == 58 hours == 2.5 days
-Note: Already Bruteforced --> 0x00-0x41414
+Note: Already Bruteforced : 0x00 -> 0x4A4A4
 
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
+	Script almost Done, one TODO remaining, not tested yet.
 
 Y. Buffer Overflow --> Create Script to try and overflow the Inputs
 	Targets: Command, Variables Number, Response
+	Script Done in theory, not tested yet.
 
 Z. Voltage Glitch --> Create Python Script and Arduino project to glitch the Voltage
 	Use MOSFET and other Arduino to control it.
+	Arduino sketch done! --> Available in Basic-VoltageGlitch repository.
+	TODO: Python script to control the glitcher and perform the attack.
 

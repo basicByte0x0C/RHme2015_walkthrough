@@ -10,7 +10,6 @@ requestNonce = "A" + crlf   # Request Nonce
 requestVar = "V" + crlf     # Request Variables
 requestHelp = "H" + crlf    # Request Help
 
-
 # Arguments parse to customize bruteforce
 parser = argparse.ArgumentParser(description="Tool for RHme 2015 hacking challenge.")
 parser.add_argument('-com', type=str, help="Specify the Serial Port to be used.")
