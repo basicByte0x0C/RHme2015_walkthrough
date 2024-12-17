@@ -120,8 +120,26 @@ Please insert your TOTP user token
 	Build flags     -O +x --eep rw --pgmem r --debug
 	------------------------------------------------
 	
-	=> seems like the TOTP Token does not work, i got the same message with any token value
+	=> seems like the TOTP Token does not work, i got the same message with any token value	
+	=> seems like its printing nothing if input is 33 characters => possible buffer overflow vulnerability?
 	
+10. Test unexpected inputs
+Input requested from "V" command => input is a number smaller than 5
+	-> letters result in "Input is not a valid number", so it's filtered properly.
+	-> symbols result in "Input is not a valid number", so it's filtered properly.
+	-> huge numbers result in "Input is not a valid number" as well
+	-> negative number result in Memory dump
+		=> Improper conversion from int to unsigned
+		=> "User authentication token      63b4c" => User Token is the same as password with shorted RNG pin
+Input requested from "R" command after User Login
+	-> Already know input == 33 characters result in no data
+	-> negative number result in normal output
+	-> symbol result in normal output
+	-> input of 20 characters result in: truction length (min 0, max 4)
+		=> some kind of overflow dump
+		with input length of 21 it gives some gibberish
+			+ binwalk => 83(0x53) AES S-Box? What is this?
+		with input length > 21 doesn't print anything good?
 	
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
