@@ -13,7 +13,7 @@ print("")
 
 # Define Main
 def main():
-    print("I work!")
+    print("Job's done!")
 
 # Run Main
 if __name__ == '__main__':

@@ -128,11 +128,14 @@ Input requested from "V" command => input is a number smaller than 5
 	-> letters result in "Input is not a valid number", so it's filtered properly.
 	-> symbols result in "Input is not a valid number", so it's filtered properly.
 	-> huge numbers result in "Input is not a valid number" as well
-	-> negative number result in Memory dump
+	-> negative number result in Memory Dump
 		=> Improper conversion from int to unsigned
 		=> "User authentication token      63b4c" => User Token is the same as password with shorted RNG pin
+			However, another dumps resulted in no Token?
+		=> "Getting closer!!" Easter egg in dumped data
+		+ binwalk => nothing
 Input requested from "R" command after User Login
-	-> Already know input == 33 characters result in no data
+	-> Already know input == 33 characters long result in no data
 	-> negative number result in normal output
 	-> symbol result in normal output
 	-> input of 20 characters result in: truction length (min 0, max 4)

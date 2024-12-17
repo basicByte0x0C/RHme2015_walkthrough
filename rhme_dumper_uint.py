@@ -6,12 +6,9 @@ from rhme_utilities import *
 #   Implementation
 #---------------------------------------
 
-# Change this to configure the script
-dumpLength = 100
-
 # Info and Style
 print("")
-print("-------------------- RHme 2015 Dumper --------------------")
+print("-------------------- RHme 2015 Unsigned Int Dumper --------------------")
 print("")
 
 # Define Main
@@ -31,21 +28,21 @@ def main():
 	# Request reading
 	sendCommand = "-1" + crlf
 	serialPort.write(sendCommand.encode())
-	temp = serialPort.readline()
-	print(temp.decode())
+	# Flush Serial
+	for i in range(1, 8):
+		temp = serialPort.readline()
+		print(temp.decode())
 
 	# Dump everything
-	dump = open(r"dumped-uint", "wb")
+	dump = open(r"dump-uint", "wb")
 	temp = serialPort.read()
-	while temp not in [b'', b'\n', crlf]:
+	while temp != b'':
 		dump.write(temp)
 		temp = serialPort.read()
 	print("--- Memory Dumped ---")
 	dump.close()
-	temp = serialPort.readline()
-	print(temp.decode())
 
-	print("I work!")
+	print("Job's done!")
 
 # Run Main
 if __name__ == '__main__':
