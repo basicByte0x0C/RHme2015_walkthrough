@@ -3,7 +3,7 @@ Known Assets/Flags:
 	- Admin Key
 	- Privileged Key
 	- User Key
-	- Login as User
+	- Login as User (done)
 	- Login as Privileged
 	- Login as Admin
 	- Dump the Binary
@@ -74,7 +74,7 @@ For Priv we must bruteforce value 0xFFFFFF(== 16777215 DEC) => ~17 milion tries 
 For Admin we must bruteforce value 0xFFFFFFFF(== 4294967295 DEC) => ~4.5 billion tries (impossible)
 
 Best to try Software Attacks and then Hardware Attacks to limit damage done to the Device.
-	=> Brutforce normal User
+	=> Brutforce normal User (done)
 	=> Fuzz Commands
 	=> Buffer Overflow
 	=> Probably Voltage Glitch Attack for Privileged and Admin? Let's see after Software Attacks.
@@ -87,13 +87,48 @@ Read the response, should be different than "E"(invalid response, probably comes
 	Now it computes 5 tries per second 
 		=> Max time = 209715 s == 3495 minutes == 58 hours == 2.5 days
 Note: Already Bruteforced : 0x00 -> 0x53A35
+		"Authentication successful as user" => user password = R00063B4C == 0x63B4C
 
+9. Explore User
+"H" After login:
+-------------------------------------
+Authentication successful as user
+Possible commands:
+        R       read flash config
+        P       print the valve state
+        X       log out
+        H       show help
+-------------------------------------
+
+"P" After Login:
+-----------
+Valve closed
+------------
+	what does this mean?
+
+"R" After Login:
+----------------------------------
+Please insert your TOTP user token
+----------------------------------
+	If we type the same password of user(63b4c):
+	------------------------------------------------
+	Contacting TOTP validation server
+	Token validated
+	MCU family      ATMega328P
+	Firmware        1.2.0-ALPHA
+	Build date      01-10-2015
+	Build flags     -O +x --eep rw --pgmem r --debug
+	------------------------------------------------
+	
+	=> seems like the TOTP Token does not work, i got the same message with any token value
+	
+	
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
-	Script almost Done, one TODO remaining, not tested yet.
+	Script almost Done, fuzzing numbers remaining, trying to do it without use double code.
 
 Y. Buffer Overflow --> Create Script to try and overflow the Inputs
-	Targets: Command, Variables Number, Response
+	Targets: Command, Variables Number, Response, TOTP
 	Script Done in theory, not tested yet.
 
 Z. Voltage Glitch --> Create Python Script and Arduino project to glitch the Voltage

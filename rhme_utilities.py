@@ -52,7 +52,7 @@ def Serial_Flush():
     print("")
     while True:
         flush = serialPort.readline()
-        if flush.decode() == crlf:
+        if flush.decode() in [crlf, '', '\n']:
             print("----- Flush successful -----")
             break
         else:
