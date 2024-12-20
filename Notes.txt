@@ -143,6 +143,30 @@ Input requested from "R" command after User Login
 		with input length of 21 it gives some gibberish
 			+ binwalk => 83(0x53) AES S-Box? What is this?
 		with input length > 21 doesn't print anything good?
+
+11. Exploiting the User Overflow
+After messing around with different lengths and values:
+	-> Minimum payload length to perform the overflow == 20
+	-> Byte 20(starting from 0) acts as some Offset
+	-> Byte 21 acts as some form of random starting point for memory dump, still don't know what it does
+	-> All other bytes affect somehow the dump/overflow
+	-> Byte 20 and 21 must be <= 0x7F, else it will dump only same 2 bytes(0x0D 0x0A)
+	-> Other bytes act as offsets if the value > 0x7F, however 2 of them can be any value with no visible impact in memory dump
+	-> Filliong above byte 22 is useless, tried with 4000 bytes fill, no impact
+	-> Offset Byte(Byte 20) is limited to 0x7F, and only change starting offset, ending address is always the same => can only make memory dump shorter => useless
+	-> Only byte that seems to change starting address is the Byte 21 which has no obvious pattern
+	-------------Payload Format(bytes numbers)--------------
+	00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18
+	19 20 21
+	+ fill(optional and useless) + crlf
+	--------------------------------------------------------
+
+	=> Make script to use Byte 21 to dump all possible options
+		-> Iterate from 0x00 to 0x7F and save each dump in a file
+
+11. Test Pins for outputs
+	Readings from the Device mention Debug Enabled, maybe there is a hidden Serial Debug interface on some pins?
+	=> Use Logic Analyzer on pins while using the Device
 	
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
