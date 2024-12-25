@@ -164,10 +164,17 @@ After messing around with different lengths and values:
 	=> Make script to use Byte 21 to dump all possible options
 		-> Iterate from 0x00 to 0x7F and save each dump in a file
 
-11. Test Pins for outputs
+12. Test Pins for outputs
 	Readings from the Device mention Debug Enabled, maybe there is a hidden Serial Debug interface on some pins?
 	=> Use Logic Analyzer on pins while using the Device
-	
+		=> Pin D8 was sending Data while when performing a memory dump.
+		=> Frequency is 0.000989583 seconds per byte, or 989.583 us per byte
+			-> Baudrate == 1010? 8104(8104.67)?
+		=> Data: "0x66, 0x75, 0x6E, 0x63, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x74, 0x6F, 0x74, 0x70, 0x5F, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x6E, 0x6F, 0x74, 0x20, 0x69, 0x6D, 0x70, 0x6C, 0x65, 0x6D, 0x65, 0x65, 0x6E, 0x74, 0x65, 0x64, 0x0D, 0x0A, 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x69, 0x6E, 0x67, 0x20, 0x31, 0x0D, 0x0A"
+		=> CyberChef it to : "function totp_validation not implemented \r\n returning 1\r\n" -> Already known that it's not working properly.
+		=> What other things might this output?
+		
+			
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
 	Script almost Done, fuzzing numbers remaining, trying to do it without use double code.
