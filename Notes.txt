@@ -173,7 +173,23 @@ After messing around with different lengths and values:
 		=> Data: "0x66, 0x75, 0x6E, 0x63, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x74, 0x6F, 0x74, 0x70, 0x5F, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x6E, 0x6F, 0x74, 0x20, 0x69, 0x6D, 0x70, 0x6C, 0x65, 0x6D, 0x65, 0x65, 0x6E, 0x74, 0x65, 0x64, 0x0D, 0x0A, 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x69, 0x6E, 0x67, 0x20, 0x31, 0x0D, 0x0A"
 		=> CyberChef it to : "function totp_validation not implemented \r\n returning 1\r\n" -> Already known that it's not working properly.
 		=> What other things might this output?
-		
+			Seems like there are no other messages beside this.
+
+13. Timing Attack
+	Will do a timing attack on the Privileged and Admin Passwords.
+	For this a logic analyzer will be used to measure all tries for each characters, the biggest delay shall correspond to the correct char in the password.
+	Already done some measurements on known User Password to see the effects:
+		----- User Password -----
+		5 Wrong : 153.698167 (d = 0) / 153.698125(other measurement with different wrong chars)
+		4 Wrong : 153.697625 (d = 542)
+		3 Wrong : 153.696667 (d = 958)
+		2 Wrong : 153.696750 (d = -83)
+		1 Wrong : 153.696083 (d = 667)
+		Correct : 201.449583 (d = not relevant)
+		=> There is some big difference that should be enough to perform the timing attack on the password.
+		In worst case, the timming can be done at byte level and then it should work better.
+	Maybe a Python script to do the measurements as well?
+		-> Measurement is done between 0D0A and 0x45 values on Rx Channel, need some kind of filtering.
 			
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
