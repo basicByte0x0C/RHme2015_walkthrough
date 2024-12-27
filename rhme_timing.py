@@ -8,8 +8,8 @@ from rhme_utilities import *
 
 # Settings
 pre = "00"
-target = "F0"
-post = "0000"
+target = "F"
+post = "00000"
 
 # Info and Style
 print("")
