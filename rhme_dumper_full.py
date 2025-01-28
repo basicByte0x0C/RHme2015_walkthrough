@@ -32,7 +32,7 @@ def main():
 	temp = serialPort.readline()
 	print(temp.decode())
 
-	sendCommand = "R00063B4C" + crlf
+	sendCommand = privPassword + crlf
 	serialPort.write(sendCommand.encode())
 	# Flush Serial
 	for f in range(0, 2):
@@ -40,7 +40,7 @@ def main():
 		print(temp.decode())
 
 	# Open file
-	dump = open(r"dumps/test_full_dump", "wb")
+	dump = open(r"dumps/test_full_dump_priv", "wb")
 
 	for loop in range(0x00, 0x80):
 		# Request reading

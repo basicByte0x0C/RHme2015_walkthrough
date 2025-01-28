@@ -4,9 +4,9 @@ Known Assets/Flags:
 	- Privileged Key
 	- User Key
 	- Login as User (done)
-	- Login as Privileged
-	- Login as Admin
-	- Dump the Binary
+	- Login as Privileged (done)
+	- Login as Admin (done)
+	- Dump the Binary (partially done?)
 	- Gain Runtime Control
 	- Affect the RNG (done)
 -------------------------------------------------------------------------------------------------
@@ -164,6 +164,12 @@ After messing around with different lengths and values:
 	=> Make script to use Byte 21 to dump all possible options
 		-> Iterate from 0x00 to 0x7F and save each dump in a file
 
+Program Flash: 0x0000 -> 0x3FFF
+Internal SRAM: 0x0100-> 0x08FF
+EEPROM: 0x0000 -> 0x08FF
+
+TODO: rework dumper? likely not implemented properly and can be used better
+
 12. Test Pins for outputs
 	Readings from the Device mention Debug Enabled, maybe there is a hidden Serial Debug interface on some pins?
 	=> Use Logic Analyzer on pins while using the Device
@@ -190,7 +196,149 @@ After messing around with different lengths and values:
 		In worst case, the timming can be done at byte level and then it should work better.
 	Maybe a Python script to do the measurements as well?
 		-> Measurement is done between 0D0A and 0x45 values on Rx Channel, need some kind of filtering.
+			-> use python time to measure responses
+			-> inconsistent timings and no significant differences?
+				=> comparison is done starting with LSByte
+					=> 0.200+ response time for 4C, 68 and D5; 4C confirmed from Bruteforce, other 2 must be for privileged and admin
+	So attacking the time we get:
+		-> ~201ms for 0x68 + ~255ms for 0x80 + ~300ms for 0x79 and logged in => Privileged User Password = R00798068 == 0x798068
+		-> ~202ms for D5 + ~255ms for 0x51 + ~300ms for 0x84 + ~255ms for 0x49 and logged in => Admin User Password = R498451D5 == 0x498451D5
+		
 			
+14. Explore Privileged User:
+"H" after login:
+------------------
+Possible commands:
+        R       read flash config
+        P       print the valve state
+        V       change the valve state
+        S       send command to backend ICS network
+        X       log out
+        H       show help
+------------------
+
+"R" after login:
+------------------
+Please insert your TOTP user token
+Contacting TOTP validation server
+Token validated
+MCU family      ATMega328P
+Firmware        1.2.0-ALPHA
+Build date      01-10-2015
+Build flags     -O +x --eep rw --pgmem r --debug
+------------------
+	=> TODO: check debug pins and try to dump more memory, maybe there's something different.
+		-> dumper works here too, seems to dump same memory
+	
+"P" after login:
+------------------
+Valve closed
+------------------
+
+"V" after login:
+------------------
+Valve changed
+------------------
+	=> TODO: Maybe some pin is now HIGH? check pins and debug serial.
+	
+"S" after login:
+------------------
+0x8c6
+0x8cc
+Insert instruction length (min 0, max 4)
+------------------
+	=> hmm? let's see
+	with length 4:
+	------------------
+	Length 4
+	Insert instruction opcode
+	------------------
+	Then with opcode 0000:
+	------------------
+	The inserted command was
+	0000
+	------------------
+
+	Nothing else happen? Nothing seem chamged
+
+	-> try length -1, nothing happens?
+	-> TODO: Check Debug Serial, check other inputs
+
+OP codes:
+Read Program Flash: 0x28 0xMSB 0xLSB 0xHighDataByteOut
+Read Program Flash: 0x20 0xMSB 0xLSB 0xLowDataByteOut
+Read EEPROM: 0xA0 0xLSB 0xMSB 0xDataByteOut
+
+=> TODO: Try to dump all memory with this?
+	-> Iterate all addresses and execute both High and Low Data Read
+
+15. Explore Admin
+"H" after login:
+------------------
+Possible commands:
+        R       read flash config
+        P       print the valve state
+        V       change the valve state
+        S       send command to backend ICS network
+        K       read the Admin key
+        X       log out
+        H       show help
+------------------
+
+"R" after login:
+------------------
+Please insert your TOTP user token
+Contacting TOTP validation server
+Token validated
+MCU family      ATMega328P
+Firmware        1.2.0-ALPHA
+Build date      01-10-2015
+Build flags     -O +x --eep rw --pgmem r --debug
+------------------
+	-> TODO: likely not working like other TOTP login, check for Debug Serial and Overflow Vulnerability
+
+"P" after login:
+------------------
+Valve closed
+------------------
+
+"V" after login:
+------------------
+Valve changed
+------------------
+	-> TODO: Check pins for HIGH output
+	
+"S" after login:
+------------------
+0x8c6
+0x8cc
+Insert instruction length (min 0, max 4)
+Length 4
+Insert instruction opcode
+The inserted command was
+0123
+------------------
+	-> TODO: same as Priv User, try to break it, check Serial Port and fuzz inputs
+	
+"K" after login:
+------------------
+Retriving the Admin Key..........
+Checking Key CRC..........
+Shuffling bits..........
+More shuffling..........
+Even more shuffling!..........
+Deshuffling bits..........
+Error! Dizzy bit!..........
+Applying Dimenhydrinate..........
+The bit doesnt respond!..........
+Any doctor in room?..........
+Bit recovered.Printing..........
+The key is..........
+MUAHAHAAH!! TROLLED!
+..........
+------------------
+	-> Funny enough
+	-> TODO: Check Debug Serial and other pins
 X. Fuzzing Inputs --> Create Python script to Fuzz Commands
 	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
 	Script almost Done, fuzzing numbers remaining, trying to do it without use double code.

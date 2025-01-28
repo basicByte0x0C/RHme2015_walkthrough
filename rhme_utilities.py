@@ -9,6 +9,9 @@ crlf = '\r\n'
 requestNonce = "A" + crlf   # Request Nonce
 requestVar = "V" + crlf     # Request Variables
 requestHelp = "H" + crlf    # Request Help
+userPassword = "R00063B4C"
+privPassword = "R00798068"
+adminPassword = "R498451D5"
 
 # Convert int to hex value for argument parser
 def hex_type(value): 
