@@ -175,7 +175,7 @@ TODO: rework dumper? likely not implemented properly and can be used better
 	=> Use Logic Analyzer on pins while using the Device
 		=> Pin D8 was sending Data while when performing a memory dump.
 		=> Frequency is 0.000989583 seconds per byte, or 989.583 us per byte
-			-> Baudrate == 1010? 8104(8104.67)?
+			-> Baudrate == 9600
 		=> Data: "0x66, 0x75, 0x6E, 0x63, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x74, 0x6F, 0x74, 0x70, 0x5F, 0x76, 0x61, 0x6C, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x20, 0x6E, 0x6F, 0x74, 0x20, 0x69, 0x6D, 0x70, 0x6C, 0x65, 0x6D, 0x65, 0x65, 0x6E, 0x74, 0x65, 0x64, 0x0D, 0x0A, 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x69, 0x6E, 0x67, 0x20, 0x31, 0x0D, 0x0A"
 		=> CyberChef it to : "function totp_validation not implemented \r\n returning 1\r\n" -> Already known that it's not working properly.
 		=> What other things might this output?
@@ -227,8 +227,8 @@ Firmware        1.2.0-ALPHA
 Build date      01-10-2015
 Build flags     -O +x --eep rw --pgmem r --debug
 ------------------
-	=> TODO: check debug pins and try to dump more memory, maybe there's something different.
-		-> dumper works here too, seems to dump same memory
+	=> dumper works here too, seems to dump same memory.
+	=> Same Debug message in Debug Serial on pin 8.
 	
 "P" after login:
 ------------------
@@ -239,7 +239,7 @@ Valve closed
 ------------------
 Valve changed
 ------------------
-	=> TODO: Maybe some pin is now HIGH? check pins and debug serial.
+	=> No changes in pins Output.
 	
 "S" after login:
 ------------------
@@ -261,8 +261,8 @@ Insert instruction length (min 0, max 4)
 
 	Nothing else happen? Nothing seem chamged
 
-	-> try length -1, nothing happens?
-	-> TODO: Check Debug Serial, check other inputs
+	-> Debug Serial say "invalid length" for length -1 => it is checking the validity of the input
+	-> Debug Serial say "function send_ics_command not implemented" for normal input => possible overflow dump as well? 
 
 OP codes:
 Read Program Flash: 0x28 0xMSB 0xLSB 0xHighDataByteOut
@@ -271,6 +271,7 @@ Read EEPROM: 0xA0 0xLSB 0xMSB 0xDataByteOut
 
 => TODO: Try to dump all memory with this?
 	-> Iterate all addresses and execute both High and Low Data Read
+	-> Maybe not working as the function is not implemented? Try with overflow.
 
 15. Explore Admin
 "H" after login:
@@ -295,7 +296,7 @@ Firmware        1.2.0-ALPHA
 Build date      01-10-2015
 Build flags     -O +x --eep rw --pgmem r --debug
 ------------------
-	-> TODO: likely not working like other TOTP login, check for Debug Serial and Overflow Vulnerability
+	-> Same Behavior as Privileged User.
 
 "P" after login:
 ------------------
@@ -306,7 +307,7 @@ Valve closed
 ------------------
 Valve changed
 ------------------
-	-> TODO: Check pins for HIGH output
+	-> There seems to be no changes for pins Output.
 	
 "S" after login:
 ------------------
@@ -318,7 +319,7 @@ Insert instruction opcode
 The inserted command was
 0123
 ------------------
-	-> TODO: same as Priv User, try to break it, check Serial Port and fuzz inputs
+	-> Same Behavior as Privileged User.
 	
 "K" after login:
 ------------------
@@ -338,14 +339,12 @@ MUAHAHAAH!! TROLLED!
 ..........
 ------------------
 	-> Funny enough
-	-> TODO: Check Debug Serial and other pins
-X. Fuzzing Inputs --> Create Python script to Fuzz Commands
-	Seems like the Device is working with one letter commands. So Fuzz everything from a-z, A-Z, 0-100
-	Script almost Done, fuzzing numbers remaining, trying to do it without use double code.
+	-> Check Debug Serial and other pins: No output for Debug Serial
+	-> Weird output after another tryout: it prints \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xA0\xBB at the end?
+		-> Seems like the Overflow payload from the Normal User? However, 0xA0 and 0xBB doesn't seem familiar. 
+		-> there are 26 of 0xFF and the bytes 27 and 28 are the 0xA0 and 0xBB. Payload had 19 of 0xFF and 20-21 as config.
+		-> What if we use this payload for the "S" Command? Seem to be out of bounds, addresses go only to 0x08FF
 
-Y. Buffer Overflow --> Create Script to try and overflow the Inputs
-	Targets: Command, Variables Number, Response, TOTP
-	Script Done in theory, not tested yet.
 
 Z. Voltage Glitch --> Create Python Script and Arduino project to glitch the Voltage
 	Use MOSFET and other Arduino to control it.
