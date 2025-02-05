@@ -168,7 +168,10 @@ Program Flash: 0x0000 -> 0x3FFF
 Internal SRAM: 0x0100-> 0x08FF
 EEPROM: 0x0000 -> 0x08FF
 
-TODO: rework dumper? likely not implemented properly and can be used better
+	-> Dumping works until it encounters some value, likely 0x00(no 0x00 is present in previous dumps).
+		-> After dumping some data, insert 0x00 and try to continue dumping the firmware.
+	-> Better Dumper: Iterate byte 21 from 0x00 to 0x40, if dumped length is less than 0x80, dump again with byte 20 == dump length. 
+		-> This will dump more memory, however not full memory as some memory between 0x80 and 0x100 may be missing.
 
 12. Test Pins for outputs
 	Readings from the Device mention Debug Enabled, maybe there is a hidden Serial Debug interface on some pins?
