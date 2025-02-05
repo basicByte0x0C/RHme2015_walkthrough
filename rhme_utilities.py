@@ -32,7 +32,7 @@ args = parser.parse_args()
 if args.com:
     comPort = args.com
 else:
-    comPort = "COM3"
+    comPort = "/dev/ttyACM0"
 print("-- Set COM Port : " + comPort)
 
 # Baudrate Argument
